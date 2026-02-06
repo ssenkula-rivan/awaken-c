@@ -1,0 +1,330 @@
+//@version=5
+strategy("LinReg + UT Bot - PRODUCTION READY", 
+         overlay=true,
+         initial_capital=10000,
+         default_qty_type=strategy.cash,
+         commission_type=strategy.commission.percent,
+         commission_value=0.1,
+         slippage=3,
+         process_orders_on_close=true,
+         pyramiding=0,
+         close_entries_rule="ANY")
+
+// ============================================================================
+// TIMEFRAME ENFORCEMENT
+// ============================================================================
+valid_tf = timeframe.period == "1" or timeframe.period == "3" or timeframe.period == "5"
+if not valid_tf
+    runtime.error("⛔ USE 1min, 3min, or 5min ONLY. Current: " + timeframe.period)
+
+// ============================================================================
+// RISK MANAGEMENT - ULTRA CONSERVATIVE
+// ============================================================================
+risk_group = "🛡️ Risk Management"
+equity_risk = input.float(0.01, "Risk Per Trade (%)", minval=0.01, maxval=1.0, step=0.01, 
+              tooltip="0.01% = $1 risk per $10k. Ultra-safe for live trading.", group=risk_group)
+stop_loss_atr = input.float(2.0, "Stop Loss (ATR Multiple)", minval=1.0, maxval=5.0, step=0.1, 
+                tooltip="Wider stop = less false exits.", group=risk_group)
+take_profit_atr = input.float(4.0, "Take Profit (ATR Multiple)", minval=2.0, maxval=10.0, step=0.1, group=risk_group)
+
+max_daily_trades = input.int(10, "Max Trades Per Day", minval=1, maxval=50, 
+                   tooltip="Limits overtrading.", group=risk_group)
+max_daily_loss_pct = input.float(2.0, "Max Daily Loss (%)", minval=0.5, maxval=10.0, step=0.1,
+                     tooltip="Stop all trading if hit.", group=risk_group)
+max_consecutive_losses = input.int(3, "Max Consecutive Losses", minval=1, maxval=10,
+                         tooltip="Stop after X losses in a row.", group=risk_group)
+
+// ============================================================================
+// MARKET FILTERS - MAXIMUM PROTECTION
+// ============================================================================
+filter_group = "🎯 Protection Filters"
+enable_adx = input.bool(true, "Enable ADX Filter", 
+             tooltip="NEVER DISABLE - Blocks choppy markets.", group=filter_group)
+adx_len = input.int(14, "ADX Length", minval=10, maxval=30, group=filter_group)
+adx_thresh = input.float(30, "ADX Threshold", minval=20, maxval=50, step=1,
+             tooltip="Higher = only strong trends. 30+ recommended.", group=filter_group)
+
+enable_volatility = input.bool(true, "Enable Volatility Filter", group=filter_group)
+min_atr_pct = input.float(0.4, "Min ATR (%)", minval=0.2, maxval=2.0, step=0.05,
+              tooltip="Higher = avoids dead markets.", group=filter_group)
+
+enable_volume = input.bool(true, "Enable Volume Filter", group=filter_group)
+vol_ma_len = input.int(20, "Volume MA", minval=10, maxval=50, group=filter_group)
+vol_mult = input.float(1.5, "Min Volume Multiple", minval=1.0, maxval=3.0, step=0.1,
+           tooltip="Higher = only high activity periods.", group=filter_group)
+
+enable_trend_filter = input.bool(true, "Enable Higher Timeframe Trend", group=filter_group)
+htf_period = input.string("15", "Higher Timeframe", options=["5", "15", "30", "60"],
+             tooltip="Only trades with HTF trend direction.", group=filter_group)
+
+// ============================================================================
+// INDICATOR SETTINGS
+// ============================================================================
+linreg_group = "📊 Indicators"
+use_linreg = input.bool(true, "Use LinReg Candles", group=linreg_group)
+linreg_len = input.int(9, "LinReg Length", minval=5, maxval=20, group=linreg_group)
+signal_len = input.int(9, "Signal Length", minval=5, maxval=20, group=linreg_group)
+
+key_val = input.float(1.2, "UT Bot Sensitivity", minval=0.8, maxval=2.0, step=0.1, group=linreg_group)
+atr_len = input.int(10, "ATR Period", minval=7, maxval=20, group=linreg_group)
+
+rsi_len = input.int(14, "RSI Length", minval=10, maxval=20, group=linreg_group)
+rsi_ob = input.float(65, "RSI Overbought", minval=60, maxval=80, group=linreg_group)
+rsi_os = input.float(35, "RSI Oversold", minval=20, maxval=40, group=linreg_group)
+
+// ============================================================================
+// LINREG CANDLES
+// ============================================================================
+bopen = use_linreg ? ta.linreg(open, linreg_len, 0) : open
+bhigh = use_linreg ? ta.linreg(high, linreg_len, 0) : high
+blow = use_linreg ? ta.linreg(low, linreg_len, 0) : low
+bclose = use_linreg ? ta.linreg(close, linreg_len, 0) : close
+
+linreg_bull = bopen < bclose
+signal_line = ta.ema(bclose, signal_len)
+
+// ============================================================================
+// UT BOT - NO REPAINT
+// ============================================================================
+xATR = ta.atr(atr_len)
+nLoss = key_val * xATR
+src = close
+
+var float xATRTrailingStop = 0.0
+xATRTrailingStop := src > nz(xATRTrailingStop[1], 0) and src[1] > nz(xATRTrailingStop[1], 0) ? 
+   math.max(nz(xATRTrailingStop[1]), src - nLoss) :
+   src < nz(xATRTrailingStop[1], 0) and src[1] < nz(xATRTrailingStop[1], 0) ? 
+   math.min(nz(xATRTrailingStop[1]), src + nLoss) : 
+   src > nz(xATRTrailingStop[1], 0) ? src - nLoss : src + nLoss
+
+ema1 = ta.ema(src, 1)
+above = ta.crossover(ema1, xATRTrailingStop)
+below = ta.crossover(xATRTrailingStop, ema1)
+
+ut_buy_raw = src > xATRTrailingStop and above
+ut_sell_raw = src < xATRTrailingStop and below
+
+// ============================================================================
+// MARKET REGIME FILTERS
+// ============================================================================
+// ADX
+adx_val = ta.adx(adx_len, adx_len)
+adx_ok = not enable_adx or adx_val > adx_thresh
+
+// Volatility
+atr_pct = (xATR / close) * 100
+vol_ok = not enable_volatility or atr_pct > min_atr_pct
+
+// Volume
+vol_ma = ta.sma(volume, vol_ma_len)
+volume_ok = not enable_volume or volume > (vol_ma * vol_mult)
+
+// Higher timeframe trend
+htf_ma = request.security(syminfo.tickerid, htf_period, ta.sma(close, 50), 
+                          gaps=barmerge.gaps_off, lookahead=barmerge.lookahead_off)
+htf_close = request.security(syminfo.tickerid, htf_period, close,
+                             gaps=barmerge.gaps_off, lookahead=barmerge.lookahead_off)
+htf_uptrend = htf_close > htf_ma
+htf_downtrend = htf_close < htf_ma
+htf_ok_buy = not enable_trend_filter or htf_uptrend
+htf_ok_sell = not enable_trend_filter or htf_downtrend
+
+// RSI
+rsi_val = ta.rsi(close, rsi_len)
+rsi_ok_buy = rsi_val < rsi_ob and rsi_val > 40
+rsi_ok_sell = rsi_val > rsi_os and rsi_val < 60
+
+// Price not overextended
+sma20 = ta.sma(close, 20)
+dist_pct = math.abs(close - sma20) / sma20 * 100
+not_overextended = dist_pct < 2.0
+
+// ============================================================================
+// DAILY PROTECTION
+// ============================================================================
+var int trades_today = 0
+var float daily_pnl = 0.0
+var int current_day = 0
+var int consecutive_losses = 0
+
+new_day = dayofmonth != current_day
+if new_day
+    trades_today := 0
+    daily_pnl := 0.0
+    consecutive_losses := 0
+    current_day := dayofmonth
+
+// Track P&L
+if strategy.closedtrades > 0
+    last_trade = strategy.closedtrades - 1
+    if strategy.closedtrades.exit_time(last_trade) >= timestamp(year, month, dayofmonth, 0, 0, 0)
+        last_pnl = strategy.closedtrades.profit(last_trade)
+        daily_pnl := daily_pnl + last_pnl
+        
+        if last_pnl < 0
+            consecutive_losses := consecutive_losses + 1
+        else
+            consecutive_losses := 0
+
+// Safety limits
+max_loss_amount = strategy.initial_capital * (max_daily_loss_pct / 100)
+hit_daily_loss = daily_pnl <= -max_loss_amount
+hit_trade_limit = trades_today >= max_daily_trades
+hit_consec_losses = consecutive_losses >= max_consecutive_losses
+
+can_trade = not hit_daily_loss and not hit_trade_limit and not hit_consec_losses
+
+// ============================================================================
+// FINAL SIGNALS
+// ============================================================================
+all_filters_ok = adx_ok and vol_ok and volume_ok and not_overextended and can_trade
+
+buy_signal = ut_buy_raw and all_filters_ok and htf_ok_buy and rsi_ok_buy
+sell_signal = ut_sell_raw and all_filters_ok and rsi_ok_sell
+
+// ============================================================================
+// POSITION SIZING
+// ============================================================================
+risk_amount = strategy.initial_capital * (equity_risk / 100)
+atr_stop = xATR * stop_loss_atr
+position_size = risk_amount / atr_stop
+
+// Ensure minimum position size
+min_position = 10  // $10 minimum
+position_size := math.max(position_size, min_position)
+
+// ============================================================================
+// TRADE EXECUTION
+// ============================================================================
+if buy_signal and strategy.position_size == 0
+    stop_price = close - atr_stop
+    target_price = close + (xATR * take_profit_atr)
+    
+    strategy.entry("LONG", strategy.long, qty=position_size)
+    strategy.exit("EXIT", "LONG", stop=stop_price, limit=target_price)
+    
+    trades_today := trades_today + 1
+
+if sell_signal and strategy.position_size > 0
+    strategy.close("LONG", comment="SELL_SIGNAL")
+
+// ============================================================================
+// PROFESSIONAL VISUALIZATION
+// ============================================================================
+// LinReg Candles
+bull_color = color.new(#00ff00, 60)
+bear_color = color.new(#ff0000, 60)
+
+plotcandle(linreg_bull ? bopen : na, linreg_bull ? bhigh : na, 
+           linreg_bull ? blow : na, linreg_bull ? bclose : na, 
+           title="Bull Candle", color=bull_color, wickcolor=bull_color, bordercolor=bull_color)
+
+plotcandle(not linreg_bull ? bopen : na, not linreg_bull ? bhigh : na, 
+           not linreg_bull ? blow : na, not linreg_bull ? bclose : na, 
+           title="Bear Candle", color=bear_color, wickcolor=bear_color, bordercolor=bear_color)
+
+// Signal line
+plot(signal_line, "Signal", color=color.new(color.white, 0), linewidth=2)
+
+// UT Bot trailing stop
+trail_color = src > xATRTrailingStop ? color.new(color.green, 0) : color.new(color.red, 0)
+plot(xATRTrailingStop, "UT Trail", color=trail_color, linewidth=2, style=plot.style_line)
+
+// Entry signals - CLEAN AND PROFESSIONAL
+plotshape(buy_signal, "BUY", shape.triangleup, location.belowbar, 
+          color=color.new(color.green, 0), size=size.small)
+plotshape(sell_signal and strategy.position_size > 0, "SELL", shape.triangledown, location.abovebar, 
+          color=color.new(color.red, 0), size=size.small)
+
+// Background coloring for trend
+bgcolor(src > xATRTrailingStop ? color.new(color.green, 95) : color.new(color.red, 95))
+
+// ============================================================================
+// INFORMATION DASHBOARD
+// ============================================================================
+var table dash = table.new(position.top_right, 2, 10, bgcolor=color.new(color.black, 85), 
+                           border_width=2, border_color=color.new(color.gray, 50))
+
+if barstate.islast
+    // Header
+    table.cell(dash, 0, 0, "STATUS", text_color=color.white, text_size=size.normal, bgcolor=color.new(color.blue, 60))
+    table.cell(dash, 1, 0, "VALUE", text_color=color.white, text_size=size.normal, bgcolor=color.new(color.blue, 60))
+    
+    // Trading status
+    status_text = can_trade ? "✅ ACTIVE" : "🛑 PAUSED"
+    status_color = can_trade ? color.new(color.green, 70) : color.new(color.red, 70)
+    table.cell(dash, 0, 1, "Trading", text_color=color.white, text_size=size.small)
+    table.cell(dash, 1, 1, status_text, text_color=color.white, text_size=size.small, bgcolor=status_color)
+    
+    // Daily trades
+    table.cell(dash, 0, 2, "Trades Today", text_color=color.white, text_size=size.small)
+    trades_text = str.tostring(trades_today) + "/" + str.tostring(max_daily_trades)
+    trades_color = trades_today < max_daily_trades ? color.new(color.green, 70) : color.new(color.red, 70)
+    table.cell(dash, 1, 2, trades_text, text_color=color.white, text_size=size.small, bgcolor=trades_color)
+    
+    // Daily P&L
+    table.cell(dash, 0, 3, "Daily P&L", text_color=color.white, text_size=size.small)
+    pnl_text = str.tostring(daily_pnl, format.mintick)
+    pnl_color = daily_pnl >= 0 ? color.new(color.green, 70) : color.new(color.red, 70)
+    table.cell(dash, 1, 3, pnl_text, text_color=color.white, text_size=size.small, bgcolor=pnl_color)
+    
+    // Consecutive losses
+    table.cell(dash, 0, 4, "Consec. Losses", text_color=color.white, text_size=size.small)
+    loss_text = str.tostring(consecutive_losses) + "/" + str.tostring(max_consecutive_losses)
+    loss_color = consecutive_losses < max_consecutive_losses ? color.new(color.green, 70) : color.new(color.red, 70)
+    table.cell(dash, 1, 4, loss_text, text_color=color.white, text_size=size.small, bgcolor=loss_color)
+    
+    // ADX
+    table.cell(dash, 0, 5, "ADX", text_color=color.white, text_size=size.small)
+    adx_text = str.tostring(adx_val, "#.#")
+    adx_color = adx_ok ? color.new(color.green, 70) : color.new(color.red, 70)
+    table.cell(dash, 1, 5, adx_text, text_color=color.white, text_size=size.small, bgcolor=adx_color)
+    
+    // ATR %
+    table.cell(dash, 0, 6, "ATR %", text_color=color.white, text_size=size.small)
+    atr_text = str.tostring(atr_pct, "#.##") + "%"
+    atr_color = vol_ok ? color.new(color.green, 70) : color.new(color.red, 70)
+    table.cell(dash, 1, 6, atr_text, text_color=color.white, text_size=size.small, bgcolor=atr_color)
+    
+    // Volume
+    table.cell(dash, 0, 7, "Volume", text_color=color.white, text_size=size.small)
+    vol_ratio = volume / vol_ma
+    vol_text = str.tostring(vol_ratio, "#.#") + "x"
+    vol_color = volume_ok ? color.new(color.green, 70) : color.new(color.red, 70)
+    table.cell(dash, 1, 7, vol_text, text_color=color.white, text_size=size.small, bgcolor=vol_color)
+    
+    // Total performance
+    table.cell(dash, 0, 8, "Total Trades", text_color=color.white, text_size=size.small)
+    table.cell(dash, 1, 8, str.tostring(strategy.closedtrades), text_color=color.white, text_size=size.small, bgcolor=color.new(color.blue, 70))
+    
+    // Win rate
+    table.cell(dash, 0, 9, "Win Rate", text_color=color.white, text_size=size.small)
+    win_rate = strategy.closedtrades > 0 ? (strategy.wintrades / strategy.closedtrades * 100) : 0
+    wr_text = str.tostring(win_rate, "#.#") + "%"
+    wr_color = win_rate >= 50 ? color.new(color.green, 70) : color.new(color.orange, 70)
+    table.cell(dash, 1, 9, wr_text, text_color=color.white, text_size=size.small, bgcolor=wr_color)
+
+// ============================================================================
+// ALERTS FOR AUTO-EXECUTION
+// ============================================================================
+if buy_signal
+    stop_price = close - atr_stop
+    target_price = close + (xATR * take_profit_atr)
+    
+    alert_msg = '{"action":"BUY",' + 
+                '"symbol":"' + syminfo.ticker + '",' +
+                '"price":' + str.tostring(close) + ',' +
+                '"stop_loss":' + str.tostring(stop_price) + ',' +
+                '"take_profit":' + str.tostring(target_price) + ',' +
+                '"quantity":' + str.tostring(position_size) + ',' +
+                '"timestamp":' + str.tostring(time) + '}'
+    
+    alert(alert_msg, alert.freq_once_per_bar)
+
+if sell_signal and strategy.position_size > 0
+    alert_msg = '{"action":"SELL",' +
+                '"symbol":"' + syminfo.ticker + '",' +
+                '"price":' + str.tostring(close) + ',' +
+                '"timestamp":' + str.tostring(time) + '}'
+    
+    alert(alert_msg, alert.freq_once_per_bar)

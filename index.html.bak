@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="description" content="Premium Web Design Agency - We Grow Brands Online">
+    <title>Awakenıċ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css?family=Inter:100,200,300,regular,500,600,700,800,900%7CMulish:200,300,regular,500,600,700,800,900,200italic,300italic,italic,500italic,600italic,700italic,800italic,900italic" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="assets/main.css">
+    <link rel="stylesheet" href="assets/bloh.css">
+</head>
+<body>
+    <!-- Fusion Layer -->
+    <div class="fusion-layer">
+        <slot></slot>
+        <div class="browser-container">
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Content Area -->
+            <div class="content-area" id="contentArea">
+                <div class="hero-section">
+                    <div class="bg">
+                        <video class="vert" autoplay muted loop playsinline poster="https://fancy.design/static/video/startups-hero-vert.webp" src="https://fancy.design/static/video/startups-hero-vert.mp4"></video>
+                        <video class="hor" autoplay muted loop playsinline poster="https://fancy.design/static/video/startups-hero-hor.webp" src="https://fancy.design/static/video/startups-hero-hor.mp4"></video>
+                    </div>
+                    <div class="hero-overlay"></div>
+                </div>
+
+                <!-- Premium Web Design Section -->
+                <section class="m-banner m-banner--large home-hero hero24 js-video-section is-playing">
+                    <div class="m-banner__container colors-inverted">
+                        <!-- Heading Section -->
+                        <div class="m-banner__content">
+                            <div class="hero-bg_wrap">
+                                <div class="hero-bg_wrap-cols">
+                                    <div class="hero-bg_wrap-col">
+                                        <div class="hero-bg_wrap-slides v-scroll">
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/1.jpg" alt="1"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/2.jpg" alt="2"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/3.jpg" alt="3"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/actionvance-fIC7qz4HNqI-unsplash.jpg" alt="tech"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/beautiful-nature-aerial-view.jpg" alt="nature"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/computer-indoors-workspace.jpg" alt="workspace"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/liam-charmer-UzQCWiN3HHc-unsplash.jpg" alt="design"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/pexels-steve-29404574.jpg" alt="modern"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/3d-abstract-glowing-background.jpg" alt="abstract"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/modern-background-with-geometrical-cubes.jpg" alt="cubes"></div>
+                                        </div>
+                                        <div class="hero-bg_wrap-slides v-scroll">
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/1.jpg" alt="1"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/2.jpg" alt="2"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/3.jpg" alt="3"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/actionvance-fIC7qz4HNqI-unsplash.jpg" alt="tech"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/beautiful-nature-aerial-view.jpg" alt="nature"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/computer-indoors-workspace.jpg" alt="workspace"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/liam-charmer-UzQCWiN3HHc-unsplash.jpg" alt="design"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/pexels-steve-29404574.jpg" alt="modern"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/3d-abstract-glowing-background.jpg" alt="abstract"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/modern-background-with-geometrical-cubes.jpg" alt="cubes"></div>
+                                        </div>
+                                    </div>
+                                    <div class="hero-bg_wrap-col">
+                                        <div class="hero-bg_wrap-slides v-scroll">
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/8.jpg" alt="8"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/9.jpg" alt="9"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/10.jpg" alt="10"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/aerial-view-city-night-with-illuminated-roads.jpg" alt="city"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/beautiful-tropical-nature.jpg" alt="tropical"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/high-speed-optical-cable-fast-data-broadband-transfer-fiber-connection-abstract-tech-background.jpg" alt="tech"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/liam-charmer-UzsTbtEZh0U-unsplash.jpg" alt="creative"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/pexels-steve-29450016.jpg" alt="design"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/markus-spiske-T69IjOKCvVw-unsplash.jpg" alt="code"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/teleworking-programmer-designing-developing-software-using-tablet.jpg" alt="work"></div>
+                                        </div>
+                                        <div class="hero-bg_wrap-slides v-scroll">
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/8.jpg" alt="8"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/9.jpg" alt="9"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/10.jpg" alt="10"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/aerial-view-city-night-with-illuminated-roads.jpg" alt="city"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/beautiful-tropical-nature.jpg" alt="tropical"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/high-speed-optical-cable-fast-data-broadband-transfer-fiber-connection-abstract-tech-background.jpg" alt="tech"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/liam-charmer-UzsTbtEZh0U-unsplash.jpg" alt="creative"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/pexels-steve-29450016.jpg" alt="design"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/markus-spiske-T69IjOKCvVw-unsplash.jpg" alt="code"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/teleworking-programmer-designing-developing-software-using-tablet.jpg" alt="work"></div>
+                                        </div>
+                                    </div>
+                                    <div class="hero-bg_wrap-col">
+                                        <div class="hero-bg_wrap-slides v-scroll">
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/13.jpg" alt="13"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/14.jpg" alt="14"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/15.jpg" alt="15"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/pexels-3d-render-1058120333-33360833.jpg" alt="3d"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/pexels-rostislav-34769279.jpg" alt="creative"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/portrait-young-female-jumping.jpg" alt="energy"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/shahrooz-shekaraubi-BCLUHs9kDC0-unsplash.jpg" alt="modern"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/isolated-shot-good-looking-positive-afro-female-holds-both-hands-face-smiles-happily-rejoices-spending-nice-weekend-with-boyfriend-isolated-blue-wall-empty-space-your-advertisement.jpg" alt="happy"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/6.jpg" alt="6"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/7.jpg" alt="7"></div>
+                                        </div>
+                                        <div class="hero-bg_wrap-slides v-scroll">
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/13.jpg" alt="13"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/14.jpg" alt="14"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/15.jpg" alt="15"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/pexels-3d-render-1058120333-33360833.jpg" alt="3d"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/pexels-rostislav-34769279.jpg" alt="creative"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/portrait-young-female-jumping.jpg" alt="energy"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/shahrooz-shekaraubi-BCLUHs9kDC0-unsplash.jpg" alt="modern"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/isolated-shot-good-looking-positive-afro-female-holds-both-hands-face-smiles-happily-rejoices-spending-nice-weekend-with-boyfriend-isolated-blue-wall-empty-space-your-advertisement.jpg" alt="happy"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/6.jpg" alt="6"></div>
+                                            <div class="hero-bg_wrap_slide"><img class="img-cover" src="assets/images/7.jpg" alt="7"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="hero-bg-gradient_overlay"></div>
+                            </div>
+                            <!-- Content Section -->
+                            <div class="container">
+                                <div class="c-heading -h1">
+                                    <div class="c-heading__pre"><h1>Premium Web Design Agency</h1></div>
+                                    <div class="c-heading__title"><p class="text-shadow-white">We Grow Brands<br>Online</p></div>
+                                    <div class="c-heading__sub"><span>Custom Websites, Branding & Digital Marketing</span></div>
+                                </div>
+                                <!-- CTA -->
+                                <a href="#" class="c-btn -slideover"><span><span>Request a Quote</span></span></a>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+        </div>
+    </div>
+    <!-- End Fusion Layer -->
+
+    <script src="script.js"></script>
+    <script src="assets/parallax.js"></script>
+</body>
+</html>

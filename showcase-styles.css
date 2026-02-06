@@ -1,0 +1,19 @@
+/* OLED Optimized Black Showcase Section */
+.showcase-section {
+    min-height: 100vh;
+    background: #000000;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Pure black for OLED screens - pixels turn off completely */
+body {
+    background: #000000;
+}
+
+.fusion-layer,
+.browser-container,
+.main-content,
+.content-area {
+    background: #000000;
+}
